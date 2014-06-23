@@ -30,8 +30,8 @@ is_target()
     Return 1
   IfWinActive,ahk_class Vim ; GVIM
     Return 1
-;  IfWinActive,ahk_class SWT_Window0 ; Eclipse
-;    Return 1
+  IfWinActive,ahk_class SWT_Window0 ; Eclipse
+    Return 1
 ;   IfWinActive,ahk_class Xming X
 ;     Return 1
 ;   IfWinActive,ahk_class SunAwtFrame
@@ -238,7 +238,13 @@ scroll_down()
   If is_target()
     Send %A_ThisHotkey%
   Else
-    is_pre_x = 1
+    If is_pre_x
+    {
+      send ^x
+      is_pre_x = 0
+    }
+    Else
+      is_pre_x = 1
   Return 
 ^f::
   If is_target()
@@ -296,12 +302,12 @@ h::
   Else
     quit()
   Return
-;; ^j::
-;;   If is_target()
-;;     Send %A_ThisHotkey%
-;;   Else
-;;     newline_and_indent()
-;;   Return
+^j::
+  If is_target()
+    Send %A_ThisHotkey%
+  Else
+    newline_and_indent()
+  Return
 ^m::
   If is_target()
     Send %A_ThisHotkey%
@@ -357,7 +363,7 @@ h::
   Else
     yank()
   Return
-^/::
+^_::
   If is_target()
     Send %A_ThisHotkey%
   Else
