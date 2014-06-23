@@ -35,10 +35,10 @@ is_target()
 ;     Return 1
 ;   IfWinActive,ahk_class SunAwtFrame
 ;     Return 1
-;   IfWinActive,ahk_class Emacs ; NTEmacs
-;     Return 1  
-;   IfWinActive,ahk_class XEmacs ; XEmacs on Cygwin
-;     Return 1
+   IfWinActive,ahk_class Emacs ; NTEmacs
+     Return 1  
+   IfWinActive,ahk_class XEmacs ; XEmacs on Cygwin
+     Return 1
   Return 0
 }
 
@@ -53,6 +53,18 @@ delete_backward_char()
   Send {BS}
   global is_pre_spc = 0
   Return
+}
+copy_line()
+{
+  Send {HOME}{ShiftDown}{END}{SHIFTUP}
+  Sleep 50
+  Send ^c
+}
+duplicate_line()
+{
+  copy_line()
+  Send {Enter}
+  Send ^v
 }
 kill_line()
 {
@@ -235,7 +247,7 @@ scroll_down()
     If is_pre_x
       find_file()
     Else
-      forward_char()
+      Send %A_ThisHotkey%
   }
   Return  
 ^c::
@@ -245,19 +257,25 @@ scroll_down()
   {
     If is_pre_x
       kill_emacs()
+    Else
+      Send %A_ThisHotkey%
   }
-  Return  
+  Return
+; Select a buffer
+h::
+  If is_pre_x
+  {
+    Send ^a
+    is_pre_x = 0
+  }
+  Else
+    Send %A_ThisHotkey%
+  Return
 ^d::
   If is_target()
     Send %A_ThisHotkey%
   Else
-    delete_char()
-  Return
-^h::
-  If is_target()
-    Send %A_ThisHotkey%
-  Else
-    delete_backward_char()
+    duplicate_line()
   Return
 ^k::
   If is_target()
@@ -371,30 +389,6 @@ scroll_down()
     Send %A_ThisHotkey%
   Else
     move_end_of_line()
-  Return
-^p::
-  If is_target()
-    Send %A_ThisHotkey%
-  Else
-    previous_line()
-  Return
-^n::
-  If is_target()
-    Send %A_ThisHotkey%
-  Else
-    next_line()
-  Return
-^b::
-  If is_target()
-    Send %A_ThisHotkey%
-  Else
-    backward_char()
-  Return
-^v::
-  If is_target()
-    Send %A_ThisHotkey%
-  Else
-    scroll_down()
   Return
 !v::
   If is_target()
