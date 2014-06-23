@@ -1,3 +1,4 @@
+; https://github.com/tigerhawkvok/emacs.ahk/blob/master/emacs.ahk
 ;;
 ;; An autohotkey script that provides emacs-like keybinding on Windows
 ;;
@@ -334,7 +335,15 @@ h::
   If is_target()
     Send %A_ThisHotkey%
   Else
-    kill_region()
+  {
+    clipboard= ; Empty the clipboard
+    Send ^c
+    ClipWait,0.1
+    If ErrorLevel
+      Send %A_ThisHotkey%
+    Else
+      kill_region()
+  }
   Return
 !w::
   If is_target()
@@ -396,4 +405,3 @@ h::
   Else
     scroll_up()
   Return
-
