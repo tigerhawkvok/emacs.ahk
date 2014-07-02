@@ -40,6 +40,8 @@ is_target()
      Return 1  
    IfWinActive,ahk_class XEmacs ; XEmacs on Cygwin
      Return 1
+   IfWinActive,ahk_class PuTTY
+     Return 1
   Return 0
 }
 
@@ -272,11 +274,23 @@ scroll_down()
 h::
   If is_pre_x
   {
-    Send ^a
-    is_pre_x = 0
+    If is_target()
+      Send %A_ThisHotkey%
+    Else
+    {
+      Send ^a
+      is_pre_x = 0
+    }
   }
   Else
-    Send %A_ThisHotkey%
+  {
+    ; if caps lock is on, send it capped ...
+    state := GetKeyState("Capslock","T")
+    If state
+      Send H
+    Else
+      Send %A_ThisHotkey% 
+  }
   Return
 ^d::
   If is_target()
@@ -404,10 +418,4 @@ h::
     Send %A_ThisHotkey%
   Else
     move_end_of_line()
-  Return
-!v::
-  If is_target()
-    Send %A_ThisHotkey%
-  Else
-    scroll_up()
   Return
