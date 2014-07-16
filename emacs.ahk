@@ -12,6 +12,10 @@ SetKeyDelay 0
 is_pre_x = 0
 ; turns to be 1 when ctrl-space is pressed
 is_pre_spc = 0
+; turns to 1 if the application has alternate forward-search
+alt_forward_search = 0
+has_started_search = 0
+
 
 ; Applications you want to disable emacs-like keybindings
 ; (Please comment out applications you don't use)
@@ -43,6 +47,25 @@ is_target()
    IfWinActive,ahk_class PuTTY
      Return 1
   Return 0
+}
+
+does_alt_forward_search()
+{
+  IfWinActive,ahk_class Chrome_WidgetWin_1 ; Chrome
+    Return 1
+  global has_started_search = 0
+  Return 0 
+}
+
+send_alt_forward_search_key()
+{
+  IfWinActive,ahk_class Chrome_WidgetWin_1 ; Chrome
+    Send ^g
+}
+send_alt_backward_search_key()
+{
+  IfWinActive,ahk_class Chrome_WidgetWin_1 ; Chrome
+    Send ^G
 }
 
 delete_char()
@@ -87,6 +110,9 @@ quit()
 {
   Send {ESC}
   global is_pre_spc = 0
+  global has_started_search = 0
+  global is_pre_x = 0
+  global alt_forward_search = 0
   Return
 }
 newline()
@@ -109,15 +135,34 @@ newline_and_indent()
 }
 isearch_forward()
 {
-  Send ^f
-  global is_pre_spc = 0
+  global
+  If alt_forward_search And has_started_search
+    send_alt_forward_search_key()
+  Else
+    {
+      Send ^f
+      alt_forward_search = does_alt_forward_search()
+      If alt_forward_search
+        has_started_search = 1
+    }
+  is_pre_spc = 0
   Return
 }
 isearch_backward()
 {
-  Send ^f
-  global is_pre_spc = 0
+  global
+  If alt_forward_search And has_started_search
+    send_alt_backward_search_key()
+  Else
+    {
+      Send ^f
+      alt_forward_search = does_alt_forward_search()
+      If alt_forward_search
+        has_started_search = 1
+    }
+  is_pre_spc = 0
   Return
+
 }
 kill_region()
 {
