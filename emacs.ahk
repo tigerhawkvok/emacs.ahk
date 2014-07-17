@@ -21,7 +21,7 @@ has_started_search = 0
 ; (Please comment out applications you don't use)
 is_target()
 {
-  IfWinActive,ahk_class ConsoleWindowClass ; Cygwin
+  IfWinActive,ahk_class mintty ; Cygwin
     Return 1 
   IfWinActive,ahk_class MEADOW ; Meadow
     Return 1 
@@ -48,6 +48,8 @@ is_target()
      Return 1
   Return 0
 }
+
+; 17,39
 
 does_alt_forward_search()
 {
@@ -178,6 +180,12 @@ kill_ring_save()
 }
 yank()
 {
+  IfWinActive,ahk_class ConsoleWindowClass
+  {
+    ; Fix pasting in console
+    Click right 17, 39
+    Return 
+  }
   Send ^v
   global is_pre_spc = 0
   Return
