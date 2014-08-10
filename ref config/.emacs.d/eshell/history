@@ -1,0 +1,12 @@
+git clone git://github.com/magit/magit.git
+pwd
+git
+git status
+git status
+commit -a -m "Test commit from eshell"
+git commit -a -m "Test commit from eshell"
+git config --global user.email tigerhawkvok@gmail.com
+git commit --amend --reset-author
+git status
+git commit -a -m "Test commit eshell 2"
+git push

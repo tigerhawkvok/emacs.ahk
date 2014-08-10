@@ -1,0 +1,4 @@
+#!/bin/sh
+PATH=/c/Users/Philip/Downloads/builds/aspell-0.60.6/_build/lib/aspell-0.60:$PATH
+export PATH
+exec $@
