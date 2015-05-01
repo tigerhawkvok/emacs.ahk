@@ -21,6 +21,12 @@ has_started_search = 0
 ; (Please comment out applications you don't use)
 is_target()
 {
+  IfWinActive,ahk_class Photoshop
+    Return 1
+  IfWinActive,ahk_class illustrator
+    Return 1
+  IfWinActive,ahk_class WindowsForms10.Window.8.app.0.34f5582_r9_ad1
+    Return 1
   IfWinActive,ahk_class mintty ; Cygwin
     Return 1 
   IfWinActive,ahk_class MEADOW ; Meadow
@@ -38,8 +44,10 @@ is_target()
     Return 1
 ;   IfWinActive,ahk_class Xming X
 ;     Return 1
-;   IfWinActive,ahk_class SunAwtFrame
-;     Return 1
+   IfWinActive,ahk_class SunAwtFrame
+     Return 1
+   IfWinActive,ahk_class SunAwtDialog
+     Return 1
    IfWinActive,ahk_class Emacs ; NTEmacs
      Return 1  
    IfWinActive,ahk_class XEmacs ; XEmacs on Cygwin
