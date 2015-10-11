@@ -42,11 +42,11 @@
 
 ;git
 (ignore-errors
-(require 'package)
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+  (require 'package)
+  (add-to-list 'package-archives
+               '("marmalade" . "http://marmalade-repo.org/packages/") t)
+  (add-to-list 'package-archives
+               '("melpa" . "http://melpa.milkbox.net/packages/") t)
 )
 (setq magit-commit-all-when-nothing-staged t)
 (setq magit-save-some-buffers "y")
@@ -740,7 +740,7 @@ table determines which characters these are."
  '(column-number-mode t)
  '(send-mail-function nil)
  '(show-paren-mode t)
- '(tool-bar-mode nil)
+ '(tool-bar-mode nil))
 ;(custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

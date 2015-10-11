@@ -1,5 +1,5 @@
 (setq gc-cons-threshold 50000000)
-
+(setq default-buffer-file-coding-system 'utf-8-unix)
 ;(set-face-font 'default "Consolas-10")
 ;(set-face-font 'default "Source Code Pro-10")
 ;(setq w32-enable-synthesized-fonts t)
@@ -22,7 +22,13 @@
 (autoload 'coffee-mode "coffee-mode" "Major mode for editing coffeescript files." t)
 (autoload 'yaml-mode "yaml-mode" "Major mode for editing YAML files." t)
 (autoload 'markdown-mode "markdown-mode" "Major mode for editing Markdown-style documents." t)
-(autoload 'ahk-mode "ahk-mode" "Major mode for editing AutoHotKey files." t)
+(autoload 'csv-mode "csv-mode" "Major mode for editing CSV documents." t)
+(autoload 'gradle-mode "gradle-mode" "Major mode for editing gradle files." t)
+(autoload 'gitconfig-mode "gitconfig-mode" "Major mode for editing .gitconfig files." t)
+(autoload 'gitignore-mode "gitignore-mode" "Major mode for editing .gitignore files." t)
+;https://github.com/joshwnj/json-mode
+(autoload 'json-mode "json-mode" "Major mode for editing JSON files." t)
+(autoload 'less-css-mode "less-css-mode" "Major mode for editing LESS files." t)
 ; (autoload 'gfm-mode "gfm-mode" "Major mode for editing Github-flavored Markdown documents." t)
 ; markdown mode: http://jblevins.org/projects/markdown-mode/
 
@@ -40,14 +46,28 @@
 ; manage cross-device conflicts
 (global-auto-revert-mode t)
 
-;git
+; Packages
 (ignore-errors
-  (require 'package)
-  (add-to-list 'package-archives
-               '("marmalade" . "http://marmalade-repo.org/packages/") t)
-  (add-to-list 'package-archives
-               '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(require 'package)
+
+;;; See https://github.com/nicferrier/elmarmalade/issues/50
+;;; and https://marmalade-repo.org/#windowsinstructions
+;; (add-to-list 'package-archives
+;;              '("marmalade" . "https://marmalade-repo.org/packages/") t)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+(when (< emacs-major-version 24)
+  ;; (defadvice package-compute-transaction
+  ;;     (before package-compute-transaction-reverse (package-list requirements) activate compile)
+  ;;   "reverse the requirements"
+  ;;   (setq requirements (reverse requirements))
+  ;;   (print requirements))
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
+(package-initialize)
 )
+
+; Git
 (setq magit-commit-all-when-nothing-staged t)
 (setq magit-save-some-buffers "y")
 
@@ -60,11 +80,10 @@
 )
 (global-set-key (kbd "C-x g") 'git-save-commit)
 
-(ignore-errors
-  ;still necessary
-  (setenv "TEMP" "c:/windows/temp")
-  (setenv "TMP" "c:/windows/temp")
-)
+
+;still necessary
+(setenv "TEMP" "c:/windows/temp")
+(setenv "TMP" "c:/windows/temp")
 
 ; Mouse behaves as browser
 (global-set-key (kbd "<mouse-4>") 'previous-buffer)
@@ -92,8 +111,16 @@
 (add-to-list 'auto-mode-alist '("\\.text\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.ahk\\'" . ahk-mode))
 (add-to-list 'auto-mode-alist '("README\\.md\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.csv\\'" . csv-mode))
+(add-to-list 'auto-mode-alist '("\\.gradle\\'" . gradle-mode))
+(add-to-list 'auto-mode-alist '("\\.gitconfig\\'" . gitconfig-mode))
+(add-to-list 'auto-mode-alist '("\\.gitignore\\'" . gitignore-mode))
+(add-to-list 'auto-mode-alist '("\\.json\\'" . json-mode))
+(add-to-list 'auto-mode-alist '("\\.less\\'" . less-css-mode))
+
+;; (eval-after-load 'gitignore-mode
+;;   '(electric-indent-mode nil ))
 
 ;; Taken from https://github.com/yasuyk/web-beautify
 ;; Make sure js-beautify is install, for which NPM is needed:
@@ -131,6 +158,54 @@
 (setq whitespace-action '(auto-cleanup))
 (setq global-whitespace-mode)
 
+
+;; Make sure that the bash executable can be found
+;; (setq explicit-shell-file-name "C:/cygwin64/bin/bash.exe")
+;; (setq shell-file-name explicit-shell-file-name)
+;; (add-to-list 'exec-path "C:/cygwin64/bin")
+
+;; Indents!
+;; Shift the selected region right if distance is positive, left if
+;; negative
+
+(defun shift-region (distance)
+  (let ((mark (mark)))
+    (save-excursion
+      (indent-rigidly (region-beginning) (region-end) distance)
+      (push-mark mark t t)
+      ;; Tell the command loop not to deactivate the mark
+      ;; for transient mark mode
+      (setq deactivate-mark nil))))
+
+(defun shift-right ()
+  (interactive)
+  (shift-region 1))
+
+(defun shift-left ()
+  (interactive)
+  (shift-region -1))
+
+(defun insert-tabs (n)
+  "Inserts N number of tabs"
+  (interactive "nNumber of tabs: ")
+  (dotimes (i n)
+    (indent-for-tab-command)))
+
+(defun open-buffer-path ()
+  "Run explorer on the directory of the current buffer."
+   (interactive)
+   (shell-command (concat "explorer " (replace-regexp-in-string "/" "\\\\" (file-name-directory (buffer-file-name)) t t))))
+
+;; Bind (shift-right) and (shift-left) function to your favorite keys. I use
+;; the following so that Ctrl-Shift-Right Arrow moves selected text one
+;; column to the right, Ctrl-Shift-Left Arrow moves selected text one
+;; column to the left:
+
+(global-set-key [C-S-right] 'shift-right)
+(global-set-key [C-S-left] 'shift-left)
+;; (global-set-key "\C->" '(insert-tabs 1))
+;; (global-set-key "\C-<" '(insert-tabs -1))
+
 ; Pairing of programming characters
 (electric-pair-mode 1)
 
@@ -143,7 +218,6 @@
   (new-line-dwim)
   )
 
-;;;;;;;; Needs some fixing
 (defun smart-semicolon()
   "When inserting a semicolon at the end of a string or ), jump outside it and insert"
   (interactive)
@@ -155,18 +229,11 @@
   (insert ";")
   )
 
-;(global-set-key (kbd ";") 'smart-semicolon)
+(global-set-key (kbd ";") 'smart-semicolon)
 
 
 ;; Smart indenting
 (electric-indent-mode 1)
-
-; Killing backward
-(defun backward-kill-line (arg)
-  "Kill ARG lines backward."
-  (interactive "p")
-  (kill-line (- 1 arg)))
-(global-set-key "\C-ck" 'backward-kill-line)
 
 ;; Boring newline
 (defun do-boring-newline()
@@ -204,12 +271,6 @@
       `no-indent'
     nil))
 (add-hook 'electric-indent-functions 'electric-indent-ignore-coffee)
-(defun electric-indent-ignore-fundamental (char)
-  "Ignore electric indentation for fundamental-mode"
-  (if (equal major-mode 'fundamental-mode)
-      `no-indent'
-    nil))
-(add-hook 'electric-indent-functions 'electric-indent-ignore-fundamental)
 
 ;; Enter key executes newline-and-indent
 (defun set-newline-and-indent ()
@@ -385,6 +446,9 @@ With a negative prefix argument NUMBER, move forward NUMBER closed brackets."
   "A minor mode so that my key settings override annoying major modes."
   t " my-keys" 'my-keys-minor-mode-map)
 
+(defun my/coffee-mode-hook ()
+  (modify-syntax-entry ?` "\"" coffee-mode-syntax-table))
+
 (add-hook 'my-keys-minor-mode-hook
           ; Variable setting specific to the minor mode
           (function (lambda ()
@@ -400,6 +464,7 @@ With a negative prefix argument NUMBER, move forward NUMBER closed brackets."
                       (add-hook 'javascript-mode-hook 'comment-auto-fill)
                       (add-hook 'coffee-mode-hook 'comment-auto-fill)
                       (add-hook 'latex-mode-hook 'comment-auto-fill)
+                      (add-hook 'coffee-mode-hook 'my/coffee-mode-hook)
                       )))
 
 (defun comment-auto-fill()
@@ -429,10 +494,10 @@ With a negative prefix argument NUMBER, move forward NUMBER closed brackets."
   (setq file-dir (get-file-dir))
   (with-temp-buffer
     (message (concat "Compiling " long-file))
-    (shell-command (concat "latex -shell-escape -interaction=nonstopmode -buf-size=9999999 -output-directory=" file-dir " " long-file) t)
+    (shell-command (concat "latex -interaction=nonstopmode -buf-size=9999999 -output-directory=" file-dir " " long-file) t)
                                         ; Run it again to fix refs
     (message "Fixing refs ...")
-    (shell-command (concat "latex -shell-escape -interaction=nonstopmode -buf-size=9999999 -output-directory="  file-dir " " long-file) t)
+    (shell-command (concat "latex -interaction=nonstopmode -buf-size=9999999 -output-directory="  file-dir " " long-file) t)
     (message "Running DVI-PS")
     (shell-command (concat "dvips " short-file ".dvi") t)
     (message "Running PS2PDF")
@@ -475,7 +540,9 @@ With a negative prefix argument NUMBER, move forward NUMBER closed brackets."
              "’" "'"
              "•" ""
   )))
-(replace-loop ll)))
+(replace-loop ll))
+(untabify)
+)
 
 (defun qq-region ()
   "translate unreadable characters in region"
@@ -603,13 +670,12 @@ With a negative prefix argument NUMBER, move forward NUMBER closed brackets."
          'face (list :background
                      (match-string-no-properties 0)))))))
 (defvar short-hexcolour-keywords
-  '(("\\(#[abcdef[:digit:]]\\{3\\}\\)[
-[:space:]\\b;,'\"]"
+  '(("#[abcdef[:digit:]]\\{3\\}"
      (0 (put-text-property
-         (match-beginning 1)
-         (match-end 1)
+         (match-beginning 0)
+         (match-end 0)
          'face (list :background
-                     (match-string-no-properties 1)))))))
+                     (match-string-no-properties 0)))))))
 (defvar rgb-color-keywords
   '(("rgb([0-9]+, *[0-9]+, *[0-9]+)"
      (0
@@ -641,6 +707,7 @@ With a negative prefix argument NUMBER, move forward NUMBER closed brackets."
   (font-lock-add-keywords nil rgba-color-keywords)
   )
 (add-hook 'css-mode-hook 'hexcolour-add-to-font-lock)
+(add-hook 'less-css-mode-hook 'hexcolour-add-to-font-lock)
 (add-hook 'php-mode-hook 'hexcolour-add-to-font-lock)
 (add-hook 'html-mode-hook 'hexcolour-add-to-font-lock)
 (add-hook 'javascript-mode-hook 'hexcolour-add-to-font-lock)
@@ -736,11 +803,11 @@ table determines which characters these are."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ahk-syntax-directory "c:/Program Files (x86)/AutoHotkey/Extras/Editors/Syntax")
  '(column-number-mode t)
  '(send-mail-function nil)
  '(show-paren-mode t)
- '(tool-bar-mode nil))
+ '(tool-bar-mode nil)
+ '(weblogger-config-alist (quote (("default" "http://blog.revealedsingularity.net/xmlrpc.php" "tigerhawkvok" "" "1")))))
 ;(custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
