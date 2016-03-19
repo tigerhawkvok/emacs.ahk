@@ -5,15 +5,27 @@
 #InstallKeybdHook
 #UseHook
 
-#IfWinActive,ahk_exe  VirtualBox.exe; VirtualBox
-  Return
+; The following line is a contribution of NTEmacs wiki http://www49.atwiki.jp/ntemacs/pages/20.html
+SetKeyDelay 0
+
+; turns to be 1 when ctrl-x is pressed
+is_pre_x = 0
+; turns to be 1 when ctrl-space is pressed
+is_pre_spc = 0
+; turns to 1 if the application has alternate forward-search
+alt_forward_search = 0
+has_started_search = 0
+
 
 ; Applications you want to disable emacs-like keybindings
 ; (Please comment out applications you don't use)
 is_target()
 {
-
-  IfWinActive,ahk_class  QWidget; VirtualBox
+  IfWinActive,ahk_class Photoshop
+    Return 1
+  IfWinActive,ahk_class illustrator
+    Return 1
+  IfWinActive,ahk_class WindowsForms10.Window.8.app.0.34f5582_r9_ad1
     Return 1
   IfWinActive,ahk_class mintty ; Cygwin
     Return 1
@@ -34,27 +46,18 @@ is_target()
 ;     Return 1
    IfWinActive,ahk_class SunAwtFrame
      Return 1
+   IfWinActive,ahk_class SunAwtDialog
+     Return 1
    IfWinActive,ahk_class Emacs ; NTEmacs
      Return 1
    IfWinActive,ahk_class XEmacs ; XEmacs on Cygwin
      Return 1
    IfWinActive,ahk_class PuTTY
      Return 1
+   IfWinActive,ahk_exe atom.exe
+     Return 1
   Return 0
 }
-
-; The following line is a contribution of NTEmacs wiki http://www49.atwiki.jp/ntemacs/pages/20.html
-SetKeyDelay 0
-
-; turns to be 1 when ctrl-x is pressed
-is_pre_x = 0
-; turns to be 1 when ctrl-space is pressed
-is_pre_spc = 0
-; turns to 1 if the application has alternate forward-search
-alt_forward_search = 0
-has_started_search = 0
-
-
 
 ; 17,39
 
