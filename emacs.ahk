@@ -40,6 +40,14 @@ is_target()
     Return 1
   IfWinActive,ahk_class Vim ; GVIM
     Return 1
+  IfWinActive,ahk_class VirtualConsoleClass
+    Return 1
+  IfWinActive,ahk_class ConsoleWindowClass
+    Return 1
+  IfWinActive,ahk_exe bash.exe
+    Return 1
+  IfWinActive,ahk_exe Code.exe
+    Return 1
   IfWinActive,ahk_class SWT_Window0 ; Eclipse
     Return 1
 ;   IfWinActive,ahk_class Xming X
@@ -55,6 +63,8 @@ is_target()
    IfWinActive,ahk_class PuTTY
      Return 1
    IfWinActive,ahk_exe atom.exe
+     Return 1
+   IfWinActive, Athena - Chrome Remote Desktop
      Return 1
   Return 0
 }
